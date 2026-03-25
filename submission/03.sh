@@ -14,7 +14,8 @@ bitcoin-cli -regtest generatetoaddress 101 "$FUND_ADDR" >/dev/null
 ADDR=$(bitcoin-cli -regtest getnewaddress "" bech32)
 
 # Send funds to it (wallet-recognized receipt)
-bitcoin-cli -regtest sendtoaddress "$ADDR" 1 >/dev/null
+# Specify a fee_rate to avoid fee estimation failure on fresh regtest nodes
+bitcoin-cli -regtest sendtoaddress "$ADDR" 1 null null false false 1 >/dev/null
 
 # Mine 1 block to confirm the send
 bitcoin-cli -regtest generatetoaddress 1 "$FUND_ADDR" >/dev/null
