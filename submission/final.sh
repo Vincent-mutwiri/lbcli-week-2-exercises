@@ -127,8 +127,9 @@ PAYMENT_AMOUNT=15000000  # satoshis
 CHANGE_AMOUNT=$((UTXO_VALUE - PAYMENT_AMOUNT - FEE_SATS))
 check_cmd "Change calculation" "CHANGE_AMOUNT" "$CHANGE_AMOUNT"
 
-PAYMENT_BTC=$(echo "scale=8; $PAYMENT_AMOUNT/100000000" | bc -l)
-CHANGE_BTC=$(echo "scale=8; $CHANGE_AMOUNT/100000000" | bc -l)
+# Convert sats -> BTC with a leading 0 (bc can output ".15000000" which breaks JSON parsing)
+PAYMENT_BTC=$(awk -v s="$PAYMENT_AMOUNT" 'BEGIN{printf "%.8f", s/100000000}')
+CHANGE_BTC=$(awk -v s="$CHANGE_AMOUNT" 'BEGIN{printf "%.8f", s/100000000}')
 
 TX_OUTPUTS='{"'$PAYMENT_ADDRESS'":'$PAYMENT_BTC',"'$CHANGE_ADDRESS'":'$CHANGE_BTC'}'
 check_cmd "Output JSON creation" "TX_OUTPUTS" "$TX_OUTPUTS"
@@ -204,7 +205,7 @@ CHILD_SEND_AMOUNT=10000
 check_cmd "Child amount calculation" "CHILD_SEND_AMOUNT" "$CHILD_SEND_AMOUNT"
 
 CHILD_RECIPIENT="2MvM2nZjueT9qQJgZh7LBPoudS554B6arQc"
-CHILD_SEND_BTC=$(echo "scale=8; $CHILD_SEND_AMOUNT/100000000" | bc -l)
+CHILD_SEND_BTC=$(awk -v s="$CHILD_SEND_AMOUNT" 'BEGIN{printf "%.8f", s/100000000}')
 
 CHILD_OUTPUTS='{"'$CHILD_RECIPIENT'":'$CHILD_SEND_BTC'}'
 check_cmd "Child output creation" "CHILD_OUTPUTS" "$CHILD_OUTPUTS"
@@ -237,7 +238,7 @@ TIMELOCK_FEE=1000
 TIMELOCK_AMOUNT=$((SECONDARY_OUTPUT_VALUE - TIMELOCK_FEE))
 check_cmd "Timelock amount calculation" "TIMELOCK_AMOUNT" "$TIMELOCK_AMOUNT"
 
-TIMELOCK_BTC=$(echo "scale=8; $TIMELOCK_AMOUNT/100000000" | bc -l)
+TIMELOCK_BTC=$(awk -v s="$TIMELOCK_AMOUNT" 'BEGIN{printf "%.8f", s/100000000}')
 
 TIMELOCK_OUTPUTS='{"'$TIMELOCK_ADDRESS'":'$TIMELOCK_BTC'}'
 check_cmd "Timelock output creation" "TIMELOCK_OUTPUTS" "$TIMELOCK_OUTPUTS"
