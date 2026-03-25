@@ -5,7 +5,9 @@ set -euo pipefail
 # Add funds to the address.
 # Return only the Address
 bitcoin-cli -regtest loadwallet "btrustwallet" >/dev/null 2>&1 || true
-ADDR=$(bitcoin-cli -regtest -rpcwallet=btrustwallet getnewaddress "" bech32)
+
+# Create the SegWit address in the default wallet context
+ADDR=$(bitcoin-cli -regtest getnewaddress "" bech32)
 
 
 bitcoin-cli -regtest generatetoaddress 1 "$ADDR" >/dev/null
