@@ -6,10 +6,17 @@ set -euo pipefail
 # Return only the Address
 bitcoin-cli -regtest loadwallet "btrustwallet" >/dev/null 2>&1 || true
 
-# Create the SegWit address in the default wallet context
+# Ensure the wallet has spendable funds (coinbase must mature: 100 blocks)
+FUND_ADDR=$(bitcoin-cli -regtest getnewaddress "" bech32)
+bitcoin-cli -regtest generatetoaddress 101 "$FUND_ADDR" >/dev/null
+
+# Create the SegWit address we want to fund
 ADDR=$(bitcoin-cli -regtest getnewaddress "" bech32)
 
+# Send funds to it (wallet-recognized receipt)
+bitcoin-cli -regtest sendtoaddress "$ADDR" 1 >/dev/null
 
-bitcoin-cli -regtest generatetoaddress 1 "$ADDR" >/dev/null
+# Mine 1 block to confirm the send
+bitcoin-cli -regtest generatetoaddress 1 "$FUND_ADDR" >/dev/null
 
 echo "$ADDR"
